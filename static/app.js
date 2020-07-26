@@ -21,26 +21,25 @@ function connectButtonHandler(event) {
     if (!connected) {
         let username = usernameInput.value;
         if (!username) {
-            alert('Enter your name before connecting');
+            alert('Ingrese su nombre antes de conectarse');
             return;
         }
         button.disabled = true;
-        button.innerHTML = 'Connecting...';
+        button.innerHTML = 'Connectandose...';
         connect(username).then(() => {
-            button.innerHTML = 'Leave call';
+            button.innerHTML = 'Dejar la video llamada';
             button.disabled = false;
             shareScreen.disabled = false;
         }).catch(() => {
-            alert('Connection failed. Is the backend running?');
-            button.innerHTML = 'Join call';
+            alert('La conexión falló. ¿Se está ejecutando el backend?');
+            button.innerHTML = 'Unirse a la videollamada';
             button.disabled = false;
         });
-    }
-    else {
+    } else {
         disconnect();
-        button.innerHTML = 'Join call';
+        button.innerHTML = 'Unirse a la videollamada';
         connected = false;
-        shareScreen.innerHTML = 'Share screen';
+        shareScreen.innerHTML = 'Compartir pantalla';
         shareScreen.disabled = true;
     }
 };
@@ -50,7 +49,7 @@ function connect(username) {
         // get a token from the back end
         fetch('/login', {
             method: 'POST',
-            body: JSON.stringify({'username': username})
+            body: JSON.stringify({ 'username': username })
         }).then(res => res.json()).then(data => {
             // join video call
             return Twilio.Video.connect(data.token);
@@ -71,9 +70,9 @@ function connect(username) {
 
 function updateParticipantCount() {
     if (!connected)
-        count.innerHTML = 'Disconnected.';
+        count.innerHTML = 'Desconectado';
     else
-        count.innerHTML = (room.participants.size + 1) + ' participants online.';
+        count.innerHTML = (room.participants.size + 1) + ' participantes online.';
 };
 
 function participantConnected(participant) {
@@ -125,7 +124,7 @@ function disconnect() {
     room.disconnect();
     while (container.lastChild.id != 'local')
         container.removeChild(container.lastChild);
-    button.innerHTML = 'Join call';
+    button.innerHTML = 'Unirse a la video llamada';
     connected = false;
     updateParticipantCount();
 };
@@ -138,16 +137,15 @@ function shareScreenHandler() {
             room.localParticipant.publishTrack(screenTrack);
             screenTrack.mediaStreamTrack.onended = () => { shareScreenHandler() };
             console.log(screenTrack);
-            shareScreen.innerHTML = 'Stop sharing';
+            shareScreen.innerHTML = 'Dejar de compartir';
         }).catch(() => {
-            alert('Could not share the screen.')
+            alert('No se pudo compartir la pantalla.')
         });
-    }
-    else {
+    } else {
         room.localParticipant.unpublishTrack(screenTrack);
         screenTrack.stop();
         screenTrack = null;
-        shareScreen.innerHTML = 'Share screen';
+        shareScreen.innerHTML = 'Compartir pantalla';
     }
 };
 
@@ -159,24 +157,21 @@ function zoomTrack(trackElement) {
                 participant.childNodes[0].childNodes.forEach(track => {
                     if (track === trackElement) {
                         track.classList.add('participantZoomed')
-                    }
-                    else {
+                    } else {
                         track.classList.add('participantHidden')
                     }
                 });
                 participant.childNodes[1].classList.add('participantHidden');
             }
         });
-    }
-    else {
+    } else {
         // zoom out
         container.childNodes.forEach(participant => {
             if (participant.className == 'participant') {
                 participant.childNodes[0].childNodes.forEach(track => {
                     if (track === trackElement) {
                         track.classList.remove('participantZoomed');
-                    }
-                    else {
+                    } else {
                         track.classList.remove('participantHidden');
                     }
                 });
